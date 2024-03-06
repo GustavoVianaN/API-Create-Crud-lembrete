@@ -9,3 +9,48 @@ export class Pessoa {
   @Column()
   idade: number;
 }
+@Controller()
+export class AppController {
+  constructor(private readonly appService: AppService) {}
+
+  @Get()
+  getAll(): Promise<Pessoa[]> {
+    return this.appService.findAll();
+  }
+
+  @Post()
+  create(@Body() pessoa: Pessoa): Promise<Pessoa> {
+    return this.appService.create(pessoa);
+  }
+}
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
+import { Pessoa } from './entities/pessoa.entity';
+
+@Injectable()
+export class AppService {
+  constructor(
+    @InjectRepository(Pessoa)
+    private readonly pessoaRepository: Repository<Pessoa>,
+  ) {}
+
+  findAll(): Promise<Pessoa[]> {
+    return this.pessoaRepository.find();
+  }
+
+  create(pessoa: Pessoa): Promise<Pessoa> {
+    return this.pessoaRepository.save(pessoa);
+  }
+}
+
+iimport { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  await app.listen(3000);
+}
+
+bootstrap();
